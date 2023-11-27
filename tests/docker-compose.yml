@@ -1,0 +1,28 @@
+version: '3'
+services:
+  #    db:
+  #      image: mysql/mysql-server:8.0.30
+  #      container_name: mysql8
+  #      restart: always
+  #      environment:
+  #          MYSQL_USER: root
+  #          MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+  #          MYSQL_PASSWORD: QWE123rt!
+  #      ports:
+  #          - 3306:3306
+  #      volumes:
+  #          - ./volumes/mysql/data:/var/lib/mysql
+    web:
+        image: augwit/wordpress:7.4.33-ALPHA.1
+        restart: always
+        container_name: wordpress 
+        ports:
+            - 80:80
+            - 443:443
+        environment:
+            - SSL_ENABLED=false
+        volumes:
+            - ./www:/var/www/html
+            - ./nginx/log:/var/log/nginx
+            - ./ssl:/var/ssl
+
