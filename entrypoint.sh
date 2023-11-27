@@ -7,6 +7,13 @@ if [ "$SSL_ENABLED" = "true" ]; then
     cp /usr/src/nginx-defaults/default_ssl.conf /etc/nginx/conf.d/;
 fi
 
+# Download the latest wordpress
+curl https://wordpress.org/latest.zip -o /var/www/wordpress_latest.zip
+unzip /var/www/wordpress_latest.zip -d /var/www/
+rm -f /var/www/wordpress_latest.zip
+cp -r /var/www/wordpress/* /var/www/html/
+rm -rf /var/www/wordpress
+
 # Change owner of the web folder
 chown -R www-data /var/www/html
 

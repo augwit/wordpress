@@ -21,7 +21,7 @@ RUN set -eux; \
 	apt-get install -y --no-install-recommends \
 	# Ghostscript is required for rendering PDF previews
 		ghostscript \
-		vim curl gnupg2 ca-certificates
+		vim curl unzip gnupg2 ca-certificates
 
 RUN set -eux; \
 # install the PHP extensions we need (https://make.wordpress.org/hosting/handbook/handbook/server-environment/#php-extensions)
