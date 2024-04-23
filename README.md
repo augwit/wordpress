@@ -14,10 +14,23 @@ cert.pem  chain.pem  fullchain.pem  options-ssl-nginx.conf  privkey.pem  README 
 New features might come later. Feel free to visit the repository site on Github: [https://github.com/augwit/wordpress/](https://github.com/augwit/wordpress/)
 
 ## Usage
-example of docker-compose:
+Example of docker-compose, using this image and mysql image:
 ```yml
 version: '3'
 services:
+    web:
+        image: augwit/wordpress:7.4.33-ALPHA.2
+        restart: always
+        container_name: wordpress
+        ports:
+            - 80:80
+            - 443:443
+        environment:
+            - SSL_ENABLED=false
+        volumes:
+            - ./www:/var/www/html
+            - ./nginx/log:/var/log/nginx
+            - ./ssl:/var/ssl
     db:
         image: mysql/mysql-server:8.0.30
         container_name: mysql
@@ -30,18 +43,5 @@ services:
             - 3306:3306
         volumes:
             - ./mysql/data:/var/lib/mysql
-    web:
-        image: augwit/wordpress:7.4.33
-        restart: always
-        container_name: wordpress
-        ports:
-            - 80:80
-            - 443:443
-        environment:
-            - SSL_ENABLED=true
-        volumes:
-            - ./www:/var/www/html
-            - ./nginx/log:/var/log/nginx
-            - ./ssl:/var/ssl
 ```
 
