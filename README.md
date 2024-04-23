@@ -4,7 +4,7 @@ Service combining nginx and php-fpm to host wordpress site, database not include
 ## Introduction
 This image runs a Debian-based Nginx server with PHP-fpm to serve a website, with configurations specifically for WordPress.
 
-As originally designed to serve an existing WordPress site, this image did not implement a default WordPress site yet. Users need to provide WordPress sources either freshly downloaded or from existing code base to a volume and mount it to /var/www.html.
+The container will download the latest wordpress to /var/www/html/ when it is created.
 
 The default port is 80. If you want to support HTTPS, please set the environment variable SSL_ENABLED to true and provide the cert files in a volume mounted to /var/ssl. We expect lets-encrypt solution, therefore you need to use tools such as certbot to generate SSL in the host, and copy the cert files from /etc/letsencrypt/live/{yourdomain.com} to the volume. Please note the options-ssl-nginx.conf and ssl-dhparams.pem files from /etc/letsencrypt of the host are also needed to be placed in the same volume. The typical content of this ssl volume should contain such files:
 ```shell
