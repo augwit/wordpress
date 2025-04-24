@@ -1,1 +1,5 @@
 .DS_Store
+tests/volumes
+tests/ssl
+tests/www
+tests/nginx
