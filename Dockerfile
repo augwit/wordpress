@@ -3,8 +3,14 @@ ARG PHP_VERSION=7.4.33
 
 FROM php:$PHP_VERSION-fpm-$DEBIAN_VERSION
 
-ENV SSL_ENABLED="false";
-RUN mkdir "/var/ssl";
+# Add environment variables for domain and port
+ENV SERVER_NAME="example.com"
+ENV SSL_ENABLED="false"
+
+ENV WP_DB_HOST="db"
+ENV WP_DB_USER="root"
+ENV WP_DB_PASSWORD="password"
+ENV WP_DB_NAME="wordpress"
 
 # Add Debian Bookworm repositories and install necessary tools
 # persistent dependencies
@@ -107,6 +113,14 @@ RUN set -ex; \
 	; \
         rm -rf /var/lib/apt/lists/*
 
+# Install Certbot using the package manager
+RUN set -eux; \
+    apt-get update; \
+    apt-get install -y --no-install-recommends certbot python3-certbot-nginx cron
+
+# Add a cron job for Certbot auto-renewal
+RUN echo "0 0,12 * * * certbot renew --quiet" | crontab -
+
 # Update Nginx to run as www-data
 RUN sed -i 's/user nginx;/user www-data;/' /etc/nginx/nginx.conf
 RUN usermod -a -G nginx www-data
@@ -115,15 +129,20 @@ RUN usermod -a -G nginx www-data
 RUN mkdir /usr/src/nginx-defaults
 COPY ./nginx/default.conf /usr/src/nginx-defaults/default.conf
 COPY ./nginx/wordpress.conf.include /usr/src/nginx-defaults/wordpress.conf.include
-COPY ./nginx/default_ssl.conf /usr/src/nginx-defaults/default_ssl.conf
-COPY ./nginx/options-ssl-nginx.conf /usr/src/nginx-defaults/options-ssl-nginx.conf
+# COPY ./nginx/default_ssl.conf /usr/src/nginx-defaults/default_ssl.conf
+# COPY ./nginx/options-ssl-nginx.conf /usr/src/nginx-defaults/options-ssl-nginx.conf
+# RUN mkdir "/var/ssl";
 
 # Expose the default Nginx port
 EXPOSE 80
-EXPOSE 443
+# Expose the default Nginx SSL port if SSL is enabled
+RUN if [ "$SSL_ENABLED" = "true" ]; then \
+	echo "EXPOSE 443"; \
+	fi
 
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
+
 ENTRYPOINT ["/entrypoint.sh"]
 
 

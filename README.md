@@ -14,21 +14,25 @@ Example of docker-compose, using this image and mysql image:
 version: '3'
 services:
     web:
-        image: augwit/wordpress:7.4.33-ALPHA.2
+        image: augwit/wordpress:7.4.33-BETA.1
         restart: always
         container_name: wordpress
         ports:
             - 80:80
             - 443:443
         environment:
+            - SERVER_NAME=localhost
             - SSL_ENABLED=false
+            - WP_DB_HOST=db
+            - WP_DB_USER=root
+            - WP_DB_PASSWORD=password
+            - WP_DB_NAME=wordpress
         volumes:
             - ./www:/var/www/html
             - ./nginx/log:/var/log/nginx
             - ./ssl:/var/ssl
     db:
         image: mysql/mysql-server:8.0.30
-        container_name: mysql
         restart: always
         environment:
             MYSQL_USER: root
