@@ -11,7 +11,7 @@ The default port is 80. If you want to support HTTPS, please set the environment
 cert.pem  chain.pem  fullchain.pem  options-ssl-nginx.conf  privkey.pem  README  ssl  ssl-dhparams.pem
 ```
 
-New features might come later. Feel free to visit the repository site on Github: [https://github.com/augwit/wordpress/](https://github.com/augwit/wordpress/)
+New features might come later. 
 
 ## Usage
 Example of docker-compose, using this image and mysql image:
@@ -43,5 +43,13 @@ services:
             - 3306:3306
         volumes:
             - ./mysql/data:/var/lib/mysql
+```
+
+## Develop
+Feel free to visit the repository site on Github: [https://github.com/augwit/wordpress/](https://github.com/augwit/wordpress/)
+
+Build:
+```
+docker build . -t augwit/wordpress:${tag}
 ```
 
