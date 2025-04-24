@@ -41,6 +41,8 @@ services:
             - ./mysql/data:/var/lib/mysql
 ```
 
+When setting up wordpress, bear in mind the database name should be "db" or "mysql", not the default "localhost", because the wordpress and the database are in two different containers.
+
 The default port is 80. If you want to support HTTPS, please set the environment variable SSL_ENABLED to true and provide the cert files in a volume mounted to /var/ssl.
 
 We highly recommend using lets-encrypt as your SSL solution. You need to use tools such as certbot to generate SSL in the host, then copy the cert files from /etc/letsencrypt/live/{yourdomain.com} to the volume. Please note the options-ssl-nginx.conf and ssl-dhparams.pem files from /etc/letsencrypt of the host are also needed to be placed in the same volume. The typical content of this ssl volume should contain such files:
