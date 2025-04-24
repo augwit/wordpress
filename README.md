@@ -34,6 +34,7 @@ services:
             MYSQL_USER: root
             MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
             MYSQL_PASSWORD: password
+            MYSQL_DATABASE: wordpress
         ports:
             - 3306:3306
         volumes:
