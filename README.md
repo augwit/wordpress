@@ -75,7 +75,7 @@ services:
             - ./mysql/data:/var/lib/mysql
 ```
 
-The default port is 80. If you want to support HTTPS, you can set the environment variable SERVER_NAME, SSL_ENABLED to true, and publish the 443 port.
+The default port is 80. If you want to support HTTPS, you can set the environment variable DOMAIN_NAME, HTTPS_ENABLED to true, and publish the 443 port.
 
 Below is the example, to set HTTPS for domain name "example.com", so you can visit https://example.com.
 
@@ -88,9 +88,9 @@ services:
             - 80:80
             - 443:443
         environment:
-            - SERVER_NAME=example.com
-            - SSL_ENABLED=true
-            - CERTBOT_ENABLED=true
+            - DOMAIN_NAME=example.com
+            - HTTPS_ENABLED=true
+            - LETSENCRYPT_ENABLED=true
             - WP_DB_HOST=db
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
@@ -112,9 +112,9 @@ services:
             - ./mysql/data:/var/lib/mysql
 ```
 
-Note that we use letsencrypt's certbot to generate SSL certificates for you, you need to prove the domain is controlled by you, in most case your domain name should already resolved to the host you run this container, otherwise the certbot will fail, and the container will not be able to serve.
+Note that we use letsencrypt to generate SSL certificates for you, you need to prove the domain is controlled by you, in most case your domain name should already resolved to the host you run this container, otherwise the certbot will fail to generate certificate, the website will only serve on 80 port.
 
-However, if you want to use your own certificate or if your environment does not support certbot to automatically generate certificate, you can set CERTBOT_ENABLED to false, and mount a volumn to /var/ssl, then put your own fullchain.pem and privkey.pem to this folder.
+However, if you want to use your own certificate or if your environment does not support letsencrypt to automatically generate certificate, you can set LETSENCRYPT_ENABLED to false, and mount a volumn to /var/ssl, then put your own fullchain.pem and privkey.pem to this folder. The website will not serve before the two files are properly placed.
 
 ## Develop
 Feel free to visit the repository site on Github: [https://github.com/augwit/wordpress/](https://github.com/augwit/wordpress/)

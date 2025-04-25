@@ -1,20 +1,20 @@
 #!/bin/bash
 
-if [ -z "$(ls -A /etc/nginx/conf.d)" ]; then
+if [ ! -f /etc/nginx/conf.d/default.conf ]; then
     cp /usr/src/nginx-defaults/default.conf /etc/nginx/conf.d/;
     cp /usr/src/nginx-defaults/wordpress.conf.include /etc/nginx/conf.d/wordpress.conf.include
 
     # Update entrypoint to configure Nginx and configure SSL certificates
-    sed -i "s/server_name localhost;/server_name $SERVER_NAME;/" /etc/nginx/conf.d/default.conf
+    sed -i "s/server_name localhost;/server_name $DOMAIN_NAME;/" /etc/nginx/conf.d/default.conf
 
     # If SSL is enabled and Certbot is not enabled, copy the default SSL configuration
-    if [ "$SSL_ENABLED" = "true" ] && [ "$CERTBOT_ENABLED" = "false" ]; then 
+    if [ "$HTTPS_ENABLED" = "true" ] && [ "$LETSENCRYPT_ENABLED" = "false" ]; then 
         cp /usr/src/nginx-defaults/default_ssl.conf /etc/nginx/conf.d/;
     fi
 
     # If SSL is enabled and Certbot is enabled, run Certbot to obtain SSL certificates
-    if [ "$SSL_ENABLED" = "true" ] && [ "$CERTBOT_ENABLED" = "true" ]; then
-        certbot --nginx -d $SERVER_NAME --non-interactive --agree-tos --register-unsafely-without-email -m admin@$SERVER_NAME
+    if [ "$HTTPS_ENABLED" = "true" ] && [ "$LETSENCRYPT_ENABLED" = "true" ]; then
+        certbot --nginx -d $DOMAIN_NAME --non-interactive --agree-tos --register-unsafely-without-email -m admin@$DOMAIN_NAME
         # cerrtbot started nginx but we need to stop it for now. Later we will start it in the foreground.
         service nginx stop
     fi

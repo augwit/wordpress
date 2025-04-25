@@ -5,6 +5,9 @@ services:
         ports:
             - 80:80
         environment:
+            - DOMAIN_NAME=localhost
+            - HTTPS_ENABLED=true
+            - LETSENCRYPT_ENABLED=true
             - WP_DB_HOST=db
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password

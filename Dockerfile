@@ -4,9 +4,9 @@ ARG PHP_VERSION=7.4.33
 FROM php:$PHP_VERSION-fpm-$DEBIAN_VERSION
 
 # Add environment variables for domain and port
-ENV SERVER_NAME="localhost"
-ENV SSL_ENABLED="false"
-ENV CERTBOT_ENABLED="true"
+ENV DOMAIN_NAME="localhost"
+ENV HTTPS_ENABLED="false"
+ENV LETSENCRYPT_ENABLED="true"
 
 ENV WP_DB_HOST="hub.docker.internal"
 ENV WP_DB_USER="wordpress"
@@ -139,6 +139,8 @@ COPY ./nginx/options-ssl-nginx.conf /etc/nginx/ssl/options-ssl-nginx.conf
 RUN openssl dhparam -out /etc/nginx/ssl/ssl-dhparams.pem 2048
 # Create a directory for SSL certificates when certbot is disabled
 RUN mkdir "/var/ssl";
+# Remove the default Nginx configuration file, later we will generate new one
+RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Expose the default Nginx ports
 EXPOSE 80
