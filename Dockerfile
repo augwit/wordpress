@@ -4,11 +4,11 @@ ARG PHP_VERSION=7.4.33
 FROM php:$PHP_VERSION-fpm-$DEBIAN_VERSION
 
 # Add environment variables for domain and port
-ENV SERVER_NAME="example.com"
+ENV SERVER_NAME="localhost"
 ENV SSL_ENABLED="false"
 
-ENV WP_DB_HOST="db"
-ENV WP_DB_USER="root"
+ENV WP_DB_HOST="hub.docker.internal"
+ENV WP_DB_USER="wordpress"
 ENV WP_DB_PASSWORD="password"
 ENV WP_DB_NAME="wordpress"
 
@@ -122,7 +122,7 @@ RUN set -eux; \
 RUN echo "0 0,12 * * * certbot renew --quiet" | crontab -
 
 # Update Nginx to run as www-data
-RUN sed -i 's/user nginx;/user www-data;/' /etc/nginx/nginx.conf
+RUN sed -i 's/user  nginx;/user  www-data;/' /etc/nginx/nginx.conf
 RUN usermod -a -G nginx www-data
 # Change owner of the web folder
 RUN chown -R www-data /var/www/html

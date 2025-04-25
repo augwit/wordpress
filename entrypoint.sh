@@ -31,6 +31,12 @@ if [ ! -f /var/www/html//wp-config.php ] && [ -f /var/www/html/wp-config-sample.
     sed -i "s/password_here/${WP_DB_PASSWORD}/" /var/www/html/wp-config.php
     sed -i "s/localhost/${WP_DB_HOST}/" /var/www/html/wp-config.php
 
+    # Generate random keys for authentication salts
+    for key in AUTH_KEY SECURE_AUTH_KEY LOGGED_IN_KEY NONCE_KEY AUTH_SALT SECURE_AUTH_SALT LOGGED_IN_SALT NONCE_SALT; do
+        rand=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+        sed -i "s/put your unique phrase here/${rand}/" /var/www/html/wp-config.php
+    done
+
     # Change owner of the web folder to make sure proper permissions for nginx
     chown -R www-data /var/www/html
 fi
