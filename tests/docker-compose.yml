@@ -1,16 +1,14 @@
 services:
     web:
-        image: augwit/wordpress:7.4.33-BETA.1
+        image: augwit/wordpress:7.4.33-BETA.3
         restart: always
-        container_name: wordpress 
         ports:
             - 80:80
-            - 443:443
         environment:
             - SERVER_NAME=localhost
             - SSL_ENABLED=false
             - WP_DB_HOST=db
-            - WP_DB_USER=root
+            - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
             - WP_DB_NAME=wordpress
         volumes:
@@ -20,12 +18,12 @@ services:
       image: mysql/mysql-server:8.0.32
       restart: always
       environment:
-          MYSQL_USER: root
-          MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_USER: wordpress
           MYSQL_PASSWORD: password
           MYSQL_DATABASE: wordpress
       ports:
           - 3306:3306
       volumes:
-          - ./volumes/mysql/data:/var/lib/mysql
+          - ./mysql/data:/var/lib/mysql
 
