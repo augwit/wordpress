@@ -1,17 +1,23 @@
 #!/bin/bash
 
-# if [ "$SSL_ENABLED" = "true" ]; then 
-#     cp /usr/src/nginx-defaults/options-ssl-nginx.conf /var/ssl;
-#     cp /usr/src/nginx-defaults/default_ssl.conf /etc/nginx/conf.d/;
-# fi
+if [ -z "$(ls -A /etc/nginx/conf.d)" ]; then
+    cp /usr/src/nginx-defaults/default.conf /etc/nginx/conf.d/;
+    cp /usr/src/nginx-defaults/wordpress.conf.include /etc/nginx/conf.d/wordpress.conf.include
 
-# Update entrypoint to configure Nginx and acquire SSL certificates
-sed -i "s/server_name localhost;/server_name $SERVER_NAME;/" /etc/nginx/conf.d/default.conf
+    # Update entrypoint to configure Nginx and configure SSL certificates
+    sed -i "s/server_name localhost;/server_name $SERVER_NAME;/" /etc/nginx/conf.d/default.conf
 
-if [ "$SSL_ENABLED" = "true" ]; then
-    certbot --nginx -d $SERVER_NAME --non-interactive --agree-tos --register-unsafely-without-email -m admin@$SERVER_NAME
-    # cerrtbot started nginx but we need to stop it for now. Later we will start it in the foreground.
-    service nginx stop
+    # If SSL is enabled and Certbot is not enabled, copy the default SSL configuration
+    if [ "$SSL_ENABLED" = "true" ] && [ "$CERTBOT_ENABLED" = "false" ]; then 
+        cp /usr/src/nginx-defaults/default_ssl.conf /etc/nginx/conf.d/;
+    fi
+
+    # If SSL is enabled and Certbot is enabled, run Certbot to obtain SSL certificates
+    if [ "$SSL_ENABLED" = "true" ] && [ "$CERTBOT_ENABLED" = "true" ]; then
+        certbot --nginx -d $SERVER_NAME --non-interactive --agree-tos --register-unsafely-without-email -m admin@$SERVER_NAME
+        # cerrtbot started nginx but we need to stop it for now. Later we will start it in the foreground.
+        service nginx stop
+    fi
 fi
 
 # Download the latest wordpress
@@ -24,7 +30,7 @@ if [ ! -f /var/www/html/index.php ]; then
 fi
 
 # If wp-config.php does not exist and wp-config-sample.php exists, copy wp-config-sample.php to wp-config.php and update database configuration
-if [ ! -f /var/www/html//wp-config.php ] && [ -f /var/www/html/wp-config-sample.php ]; then
+if [ ! -f /var/www/html/wp-config.php ] && [ -f /var/www/html/wp-config-sample.php ]; then
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
     sed -i "s/database_name_here/${WP_DB_NAME}/" /var/www/html/wp-config.php
     sed -i "s/username_here/${WP_DB_USER}/" /var/www/html/wp-config.php

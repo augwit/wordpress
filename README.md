@@ -90,6 +90,7 @@ services:
         environment:
             - SERVER_NAME=example.com
             - SSL_ENABLED=true
+            - CERTBOT_ENABLED=true
             - WP_DB_HOST=db
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
@@ -113,12 +114,7 @@ services:
 
 Note that we use letsencrypt's certbot to generate SSL certificates for you, you need to prove the domain is controlled by you, in most case your domain name should already resolved to the host you run this container, otherwise the certbot will fail, and the container will not be able to serve.
 
-~~We highly recommend using lets-encrypt as your SSL solution. You need to use tools such as certbot to generate SSL in the host, then copy the cert files from /etc/letsencrypt/live/{yourdomain.com} to the volume. Please note the options-ssl-nginx.conf and ssl-dhparams.pem files from /etc/letsencrypt of the host are also needed to be placed in the same volume. The typical content of this ssl volume should contain such files:~~
-
-~~cert.pem  chain.pem  fullchain.pem  options-ssl-nginx.conf  privkey.pem  README  ssl  ssl-dhparams.pem~~
-
-~~Or you can directly mount /etc/letsencrypt/live/{yourdomain.com} to the /var/ssl volume.~~
-
+However, if you want to use your own certificate or if your environment does not support certbot to automatically generate certificate, you can set CERTBOT_ENABLED to false, and mount a volumn to /var/ssl, then put your own fullchain.pem and privkey.pem to this folder.
 
 ## Develop
 Feel free to visit the repository site on Github: [https://github.com/augwit/wordpress/](https://github.com/augwit/wordpress/)
