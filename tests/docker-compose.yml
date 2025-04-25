@@ -1,12 +1,10 @@
 services:
     web:
-        image: augwit/wordpress:7.4.33-BETA.3
+        image: augwit/wordpress:7.4.33
         restart: always
         ports:
             - 80:80
         environment:
-            - SERVER_NAME=localhost
-            - SSL_ENABLED=false
             - WP_DB_HOST=db
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password

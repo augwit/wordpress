@@ -17,7 +17,7 @@ docker run -d \
   -e WP_DB_USER=wordpress \
   -e WP_DB_PASSWORD=password \
   -e WP_DB_NAME=wordpress \
-  augwit/wordpress:7.4.33-BETA.3
+  augwit/wordpress:7.4.33
 ```
 
 Open browser to visit http://localhost, you will see the wordpress language selection page.
@@ -49,13 +49,11 @@ Example of docker-compose, using this image and mysql image:
 ```yml
 services:
     web:
-        image: augwit/wordpress:7.4.33-BETA.3
+        image: augwit/wordpress:7.4.33
         restart: always
         ports:
             - 80:80
         environment:
-            - SERVER_NAME=localhost
-            - SSL_ENABLED=false
             - WP_DB_HOST=db
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
@@ -77,9 +75,43 @@ services:
             - ./mysql/data:/var/lib/mysql
 ```
 
-The default port is 80. If you want to support HTTPS, you can set the environment variable SSL_ENABLED to true and publish the 443 port.
+The default port is 80. If you want to support HTTPS, you can set the environment variable SERVER_NAME, SSL_ENABLED to true, and publish the 443 port.
 
-We use letsencrypt to generate SSL certificates for you, therefore you don't need to put files by yourself any more.
+Below is the example, to set HTTPS for domain name "example.com", so you can visit https://example.com.
+
+```yml
+services:
+    web:
+        image: augwit/wordpress:7.4.33
+        restart: always
+        ports:
+            - 80:80
+            - 443:443
+        environment:
+            - SERVER_NAME=example.com
+            - SSL_ENABLED=true
+            - WP_DB_HOST=db
+            - WP_DB_USER=wordpress
+            - WP_DB_PASSWORD=password
+            - WP_DB_NAME=wordpress
+        volumes:
+            - ./www:/var/www/html
+            - ./nginx/log:/var/log/nginx
+    db:
+        image: mysql/mysql-server:8.0.32
+        restart: always
+        environment:
+            MYSQL_ROOT_PASSWORD: password
+            MYSQL_USER: wordpress
+            MYSQL_PASSWORD: password
+            MYSQL_DATABASE: wordpress
+        ports:
+            - 3306:3306
+        volumes:
+            - ./mysql/data:/var/lib/mysql
+```
+
+Note that we use letsencrypt's certbot to generate SSL certificates for you, you need to prove the domain is controlled by you, in most case your domain name should already resolved to the host you run this container, otherwise the certbot will fail, and the container will not be able to serve.
 
 ~~We highly recommend using lets-encrypt as your SSL solution. You need to use tools such as certbot to generate SSL in the host, then copy the cert files from /etc/letsencrypt/live/{yourdomain.com} to the volume. Please note the options-ssl-nginx.conf and ssl-dhparams.pem files from /etc/letsencrypt of the host are also needed to be placed in the same volume. The typical content of this ssl volume should contain such files:~~
 
