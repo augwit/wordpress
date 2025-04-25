@@ -6,6 +6,7 @@ FROM php:$PHP_VERSION-fpm-$DEBIAN_VERSION
 # Add environment variables for domain and port
 ENV SERVER_NAME="localhost"
 ENV SSL_ENABLED="false"
+ENV CERTBOT_ENABLED="true"
 
 ENV WP_DB_HOST="hub.docker.internal"
 ENV WP_DB_USER="wordpress"
@@ -129,11 +130,15 @@ RUN chown -R www-data /var/www/html
 
 # Copy default configuration files of nginx
 RUN mkdir /usr/src/nginx-defaults
-COPY ./nginx/default.conf /etc/nginx/conf.d/default.conf
-COPY ./nginx/wordpress.conf.include /etc/nginx/conf.d/wordpress.conf.include
-# COPY ./nginx/default_ssl.conf /usr/src/nginx-defaults/default_ssl.conf
-# COPY ./nginx/options-ssl-nginx.conf /usr/src/nginx-defaults/options-ssl-nginx.conf
-# RUN mkdir "/var/ssl";
+COPY ./nginx/default.conf /usr/src/nginx-defaults/default.conf
+COPY ./nginx/default_ssl.conf /usr/src/nginx-defaults/default_ssl.conf
+COPY ./nginx/wordpress.conf.include /usr/src/nginx-defaults/wordpress.conf.include
+RUN mkdir -p /etc/nginx/ssl
+COPY ./nginx/options-ssl-nginx.conf /etc/nginx/ssl/options-ssl-nginx.conf
+# Generate the Diffie-Hellman certificate
+RUN openssl dhparam -out /etc/nginx/ssl/ssl-dhparams.pem 2048
+# Create a directory for SSL certificates when certbot is disabled
+RUN mkdir "/var/ssl";
 
 # Expose the default Nginx ports
 EXPOSE 80
