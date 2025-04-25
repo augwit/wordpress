@@ -6,9 +6,9 @@ The database server is not included in this image. You can use a local database 
 
 ## Quickstart
 
-Supporse your database is running on localhost, already created a database named "wordpress". User "wordpress" has the permission to access it with password "password"
+Suppose your database is running on localhost, already with a database named "wordpress". User "wordpress" has the permission to access it with password "password"
 
-Execute below command line to run a HTTP wordpress container right away:
+You can execute below command to run a HTTP wordpress container right away:
 
 ```shell
 docker run -d \
@@ -22,26 +22,26 @@ docker run -d \
 
 Open browser to visit http://localhost, you will see the wordpress language selection page.
 
-Note the "host.docker.internal" stands for the host machine where the docker container runs in. The commonly used "localhost" or "127.0.0.1" only points to the container, not to the parent level host. You can try to use the "host" network mode by add "--network host". However on MacOS and Windows this doesn't always work well, therefore using "host.docker.internal" is always a safe play.
+Note the "host.docker.internal" stands for the host machine where the docker container runs on. The commonly used "localhost" or "127.0.0.1" only points to the container, not to the parent level host. You can try to use the "host" network mode by adding "--network host". However on MacOS and Windows this doesn't always work well, therefore using "host.docker.internal" is always a safe play.
 
 Reference: https://docs.docker.com/engine/network/
 
 ### About wordpress installation
 
-The web folder is "/var/www/html" in the container. It is recommended to always amount a volume to the web folder, because in some cases users need to directly access wordpress files from the host.
+The web folder is "/var/www/html" in the container. It is recommended to always amount a volume to the web folder, because it is common that users need to directly access wordpress files from the host.
 
 If the web folder is empty, the container will automatically download the latest wordpress into it.
 
 If you already have a wordpress installation, you can mount the existing wordpress folder to the web folder, the container will not overwrite it.
 
 ### About wordpress configuration
-There are several environment variables available for user to inject the database parameters into the wordpress configuration file (wp-config.php) on installation or on wp-config.php missing. The variables are:  WP_DB_HOST, WP_DB_USER, WP_DB_PASSWORD, WP_DB_NAME
+There are several environment variables available for user to inject the database configs into the wordpress configuration file (wp-config.php) on installation or on wp-config.php missing. The variables are:  WP_DB_HOST, WP_DB_USER, WP_DB_PASSWORD, WP_DB_NAME
 
-Note that these variables will not apply to existing wp-config.php files. This means once the wordpress is installed, you will need to manually edit the wp-config.php file if you want to connect to another database.
+Note that these variables will not apply to existing wp-config.php files. This means once the wordpress is installed, you will need to manually edit the wp-config.php file if you want to change to connect to other databases.
 
 When setting up wordpress against a dockerized database server, bear in mind to use the correct host name or IP address because in docker environment the network mode is a bit tricky.
 
-For example in below docker-compose.yml, we should use host name "db" or "mysql" for wordpress to access the database, the default "localhost" will not work because the wordpress and the database are in two different containers.
+For example in below docker-compose.yml, we should use host name "db" to access the database from wordpress, the default "localhost" will not work because the wordpress and the database are in two different containers.
 
 ## Docker compose example
 Example of docker-compose, using this image and mysql image:
