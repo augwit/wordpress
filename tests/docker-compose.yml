@@ -11,19 +11,18 @@ services:
             - SSL_ENABLED=false
             - WP_DB_HOST=db
             - WP_DB_USER=root
-            - WP_DB_PASSWORD=QWE123rt!
+            - WP_DB_PASSWORD=password
             - WP_DB_NAME=wordpress
         volumes:
             - ./www:/var/www/html
             - ./nginx/log:/var/log/nginx
-            - ./ssl:/var/ssl
     db:
-      image: mysql/mysql-server:8.0.30
+      image: mysql/mysql-server:8.0.32
       restart: always
       environment:
           MYSQL_USER: root
           MYSQL_ALLOW_EMPTY_PASSWORD: 'no'
-          MYSQL_PASSWORD: QWE123rt!
+          MYSQL_PASSWORD: password
           MYSQL_DATABASE: wordpress
       ports:
           - 3306:3306
