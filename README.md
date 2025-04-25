@@ -120,7 +120,11 @@ However, if you want to use your own certificate or if your environment does not
 Feel free to visit the repository site on Github: [https://github.com/augwit/wordpress/](https://github.com/augwit/wordpress/)
 
 Build:
-```
-docker build . -t augwit/wordpress:${tag}
+```shell
+docker build . -t augwit/wordpress:${tagName}
 ```
 
+Build with another PHP version:
+```shell
+docker build --build-arg DEBIAN_VERSION=bookworm --build-arg PHP_VERSION=8.2.12 -t augwit/wordpress:8.2.12 .
+```
