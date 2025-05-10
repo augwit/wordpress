@@ -1,4 +1,11 @@
 # A web server to host wordpress
+[![Docker Pulls](https://img.shields.io/docker/pulls/augwit/wordpress.svg)](https://hub.docker.com/r/augwit/wordpress)
+[![Docker Image Version](https://img.shields.io/docker/v/augwit/wordpress?sort=semver)](https://hub.docker.com/r/augwit/wordpress/tags)
+[![GitHub stars](https://img.shields.io/github/stars/augwit/wordpress.svg?style=social&label=Star)](https://github.com/augwit/wordpress)
+[![GitHub license](https://img.shields.io/github/license/augwit/wordpress)](https://github.com/augwit/wordpress/blob/main/LICENSE)
+[![Docs](https://img.shields.io/badge/docs-deepwiki.com-blue)](https://deepwiki.com/augwit/wordpress)
+
+
 This image runs a Debian-based Nginx server with PHP-fpm to serve a website, configured specifically for WordPress.
 
 ## About database server
