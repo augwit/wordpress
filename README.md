@@ -24,7 +24,7 @@ docker run -d \
   -e WP_DB_USER=wordpress \
   -e WP_DB_PASSWORD=password \
   -e WP_DB_NAME=wordpress \
-  augwit/wordpress:8.3.26
+  augwit/wordpress:latest
 ```
 
 Open browser to visit http://localhost, you will see the wordpress language selection page.
@@ -56,7 +56,7 @@ Example of docker-compose, using this image and mysql image:
 ```yml
 services:
     web:
-        image: augwit/wordpress:8.3.26
+        image: augwit/wordpress:latest
         restart: always
         ports:
             - 80:80
@@ -89,7 +89,7 @@ Below is the example, to set HTTPS for domain name "example.com", so you can vis
 ```yml
 services:
     web:
-        image: augwit/wordpress:8.3.26
+        image: augwit/wordpress:latest
         restart: always
         ports:
             - 80:80
