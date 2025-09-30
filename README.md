@@ -13,7 +13,7 @@ The database server is not included in this image. You can use a local database 
 
 ## Quickstart
 
-Suppose your database is running on localhost, already with a database named "wordpress". User "wordpress" has the permission to access it with password "password"
+Suppose your database is running on localhost, already with a database named "wordpress". User "wordpress" has the permission to access it with password "password".
 
 You can execute below command to run a HTTP wordpress container right away:
 
@@ -24,7 +24,7 @@ docker run -d \
   -e WP_DB_USER=wordpress \
   -e WP_DB_PASSWORD=password \
   -e WP_DB_NAME=wordpress \
-  augwit/wordpress:7.4.33
+  augwit/wordpress:8.3.26
 ```
 
 Open browser to visit http://localhost, you will see the wordpress language selection page.
@@ -56,7 +56,7 @@ Example of docker-compose, using this image and mysql image:
 ```yml
 services:
     web:
-        image: augwit/wordpress:7.4.33
+        image: augwit/wordpress:8.3.26
         restart: always
         ports:
             - 80:80
@@ -89,7 +89,7 @@ Below is the example, to set HTTPS for domain name "example.com", so you can vis
 ```yml
 services:
     web:
-        image: augwit/wordpress:7.4.33
+        image: augwit/wordpress:8.3.26
         restart: always
         ports:
             - 80:80
@@ -126,12 +126,22 @@ However, if you want to use your own certificate or if your environment does not
 ## Develop
 Feel free to visit the repository site on Github: [https://github.com/augwit/wordpress/](https://github.com/augwit/wordpress/)
 
-Build:
+Build with specific Debian & PHP version:
+
+```shell
+docker build --build-arg DEBIAN_VERSION=trixie --build-arg PHP_VERSION=8.4.13 -t augwit/wordpress:8.4.13 .
+```
+
+Build with the default:
+
 ```shell
 docker build . -t augwit/wordpress:${tagName}
 ```
 
-Build with another PHP version:
+The current default build args are:
+
 ```shell
-docker build --build-arg DEBIAN_VERSION=bookworm --build-arg PHP_VERSION=8.2.12 -t augwit/wordpress:8.2.12 .
+DEBIAN_VERSION=bookworm
+PHP_VERSION=8.3.26
 ```
+
