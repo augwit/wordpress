@@ -55,7 +55,7 @@ RUN set -eux; \
 		mysqli \
 		zip \
 	; \
-	pecl install imagick-3.7.0; \
+	pecl install imagick-3.8.0; \
 	docker-php-ext-enable imagick; \
 	\
 # reset apt-mark's "manual" list so that "purge --auto-remove" will remove all build dependencies
