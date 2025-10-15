@@ -1,21 +1,25 @@
-# A web server to host wordpress
+# A Web Server to Host Wordpress
 [![Docker Pulls](https://img.shields.io/docker/pulls/augwit/wordpress.svg)](https://hub.docker.com/r/augwit/wordpress)
 [![Docker Image Version](https://img.shields.io/docker/v/augwit/wordpress?sort=semver)](https://hub.docker.com/r/augwit/wordpress/tags)
 [![GitHub stars](https://img.shields.io/github/stars/augwit/wordpress.svg?style=social&label=Star)](https://github.com/augwit/wordpress)
 [![GitHub license](https://img.shields.io/github/license/augwit/wordpress)](https://github.com/augwit/wordpress/blob/main/LICENSE)
 [![Docs](https://img.shields.io/badge/docs-deepwiki.com-blue)](https://deepwiki.com/augwit/wordpress)
 
+## Introduction
 
 This image runs a Debian-based Nginx server with PHP-fpm to serve a website, configured specifically for WordPress.
 
-## About database server
-The database server is not included in this image. You can use a local database sever or a dockerized database server such as mysql. You may need to manually create a database for wordpress if you don't already have one.
+### About Database Server
+
+The database server is not included in this image. You can use a local database sever or a dockerized database server such as mysql. You may need to manually create a database for Wordpress if you don't already have one.
 
 ## Quickstart
 
+### Run with an external MySQL server
+
 Suppose your database is running on localhost, already with a database named "wordpress". User "wordpress" has the permission to access it with password "password".
 
-You can execute below command to run a HTTP wordpress container right away:
+You can execute below command to run a HTTP Wordpress container right away:
 
 ```shell
 docker run -d \
@@ -27,31 +31,52 @@ docker run -d \
   augwit/wordpress:latest
 ```
 
-Open browser to visit http://localhost, you will see the wordpress language selection page.
+Open browser to visit http://localhost, you will see the Wordpress language selection page as the first configuration step of the new installation.
 
 Note the "host.docker.internal" stands for the host machine where the docker container runs on. The commonly used "localhost" or "127.0.0.1" only points to the container, not to the parent level host. You can try to use the "host" network mode by adding "--network host". However on MacOS and Windows this doesn't always work well, therefore using "host.docker.internal" is always a safe play.
 
 Reference: https://docs.docker.com/engine/network/
 
-### About wordpress installation
+## How Wordpress Works
 
-The web folder is "/var/www/html" in the container. It is recommended to always amount a volume to the web folder, because it is common that users need to directly access wordpress files from the host.
+### Wordpress installation
 
-If the web folder is empty, the container will automatically download the latest wordpress into it.
+On the container's startup, a web folder (the home directory of the Wordpress website) will be automatically created or mounted. The container then determine how to install the Wordpress:
 
-If you already have a wordpress installation, you can mount the existing wordpress folder to the web folder, the container will not overwrite it.
+- If the web folder is empty, the container will automatically download the latest Wordpress into it.
+- If the web folder is not empty, the container will do nothing to avoid overwrite anything in the web folder.
 
-### About wordpress configuration
-There are several environment variables available for user to inject the database configs into the wordpress configuration file (wp-config.php) on installation or on wp-config.php missing. The variables are:  WP_DB_HOST, WP_DB_USER, WP_DB_PASSWORD, WP_DB_NAME
+The web folder is "/var/www/html" inside the container. It is recommended to mount a dedicated volume to the web folder. It is very common that users need to directly access Wordpress files from the host at some point, therefore mounting a managed folder to it is always a good practice. You should be familiar with docker commands or docker compose scripts to mount volumes.
 
-Note that these variables will not apply to existing wp-config.php files. This means once the wordpress is installed, you will need to manually edit the wp-config.php file if you want to change to connect to other databases.
+If you already have a Wordpress website, you can mount the existing Wordpress folder to the web folder, this way the container will save the installation process and avoid overwriting the existing Wordpress.
 
-When setting up wordpress against a dockerized database server, bear in mind to use the correct host name or IP address because in docker environment the network mode is a bit tricky.
+### Wordpress upgrade
 
-For example in below docker-compose.yml, we should use host name "db" to access the database from wordpress, the default "localhost" will not work because the wordpress and the database are in two different containers.
+The container by itself does not provide automatic Wordpress upgrade feature. You should use the Wordpress admin panel to upgrade it or set the automatic upgrade on. The file permissions were already taken care of by the container so there should be no worries about upgrading fail due to file permission errors.
 
-## Docker compose example
-Example of docker-compose, using this image and mysql image:
+### Wordpress initial configuration
+
+On container's startup, after the eligible Wordpress installation, the container will check if the Wordpress's config file wp-config.php exists in the web folder.
+
+- If the wp-config.php does not exist(for a new installation this is true), the container will create one according to the sample config file, and inject a set of docker envrionment variables into it.
+
+- If the wp-config.php already exists, the container will leave it as is.
+
+
+The supported docker environment variables are:  
+
+```
+WP_DB_HOST, WP_DB_USER, WP_DB_PASSWORD, WP_DB_NAME
+```
+
+***Note that these environment variables will only apply to new wp-config.php file creation, it will not apply to an existing wp-config.php file.***
+
+This means once the Wordpress creation is completed, you cannot change the config through change environment variables. You will need to manually edit the wp-config.php file. For example, if you want to change to connect to other databases, you should manually edit these variables in the wp-config.php file.
+
+## Advanced Usages
+
+### Docker compose example
+An example of docker-compose configuration, using this image with a MySQL database image:
 
 ```yml
 services:
@@ -64,7 +89,7 @@ services:
             - WP_DB_HOST=db
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
-            - WP_DB_NAME=wordpress
+            - WP_DB_NAME=Wordpress
         volumes:
             - ./www:/var/www/html
             - ./nginx/log:/var/log/nginx
@@ -82,9 +107,19 @@ services:
             - ./mysql/data:/var/lib/mysql
 ```
 
-The default port is 80. If you want to support HTTPS, you can set the environment variable DOMAIN_NAME, HTTPS_ENABLED to true, and publish the 443 port.
+### Connect to a dockerized MySQL server
 
-Below is the example, to set HTTPS for domain name "example.com", so you can visit https://example.com.
+When setting up Wordpress to connect to a dockerized database server as in above example, remember to use the correct host name or IP address of the the database server, the reason is that in docker environment the network mode is a bit tricky which will affect the name resolve.
+
+For example, in the above docker-compose.yml example, we should use host name "db" to access the database from Wordpress, the default "localhost" will not work because the Wordpress and the database are in two different containers, the "localhost" of them only refers to each of their own container.
+
+### HTTPS & SSL support
+
+The default port of the web server is 80. If you want to support HTTPS, you can set the environment variable DOMAIN_NAME, HTTPS_ENABLED to true, and publish the 443 port.
+
+HTTPS is already a industrial standard of web security, so it is always encouraged to support HTTPS and redirect HTTP into HTTPS (or turn off HTTP if you want).
+
+Below is an example, by setting up HTTPS for domain name "example.com", you can visit https://example.com for the website.
 
 ```yml
 services:
@@ -119,11 +154,19 @@ services:
             - ./mysql/data:/var/lib/mysql
 ```
 
-Note that we use letsencrypt to generate SSL certificates for you, you need to prove the domain is controlled by you, in most case your domain name should already resolved to the host you run this container, otherwise the certbot will fail to generate certificate, the website will only serve on 80 port.
+Note that by default we use ***Letsencrypt*** to automatically generate SSL certificates for the website, you need to make sure that your domain name is already resolved to the host server you run this container. If the DNS is not correc the certbot will fail the challenge phase, causing no certificate generated and the website will fallback to only serve on HTTP 80 port.
 
-However, if you want to use your own certificate or if your environment does not support letsencrypt to automatically generate certificate, you can set LETSENCRYPT_ENABLED to false, and mount a volumn to /var/ssl, then put your own fullchain.pem and privkey.pem to this folder. The website will not serve before the two files are properly placed.
+***How to use your own certificates:***
+If you want to use your own certificate or if your environment is not friendly to the Letsencrypt, you can follow below steps:
 
-## Develop
+1. Set LETSENCRYPT_ENABLED to false
+2. Mount a volumn to /var/ssl
+3. Put your own cert files such as fullchain.pem and privkey.pem to this folder.
+   
+The website will only serve when the two cert files are properly placed when LETSENCRYPT_ENABLED=false.
+
+## Develop This Image
+
 Feel free to visit the repository site on Github: [https://github.com/augwit/wordpress/](https://github.com/augwit/wordpress/)
 
 Build with specific Debian & PHP version:
