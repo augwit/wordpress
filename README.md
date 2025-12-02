@@ -89,7 +89,7 @@ services:
             - WP_DB_HOST=db
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
-            - WP_DB_NAME=Wordpress
+            - WP_DB_NAME=wordpress
         volumes:
             - ./www:/var/www/html
             - ./nginx/log:/var/log/nginx
