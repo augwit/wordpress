@@ -29,19 +29,30 @@ if [ ! -f /var/www/html/index.php ]; then
     rm -rf /var/www/wordpress
 fi
 
-# If wp-config.php does not exist and wp-config-sample.php exists, copy wp-config-sample.php to wp-config.php and update database configuration
+# If wp-config.php does not exist and wp-config-sample.php exists, copy wp-config-sample.php to wp-config.php
 if [ ! -f /var/www/html/wp-config.php ] && [ -f /var/www/html/wp-config-sample.php ]; then
     cp /var/www/html/wp-config-sample.php /var/www/html/wp-config.php
-    sed -i "s/database_name_here/${WP_DB_NAME}/" /var/www/html/wp-config.php
-    sed -i "s/username_here/${WP_DB_USER}/" /var/www/html/wp-config.php
-    sed -i "s/password_here/${WP_DB_PASSWORD}/" /var/www/html/wp-config.php
-    sed -i "s/localhost/${WP_DB_HOST}/" /var/www/html/wp-config.php
 
-    # Generate random keys for authentication salts
+    # Generate random keys for authentication salts only on first setup
     for key in AUTH_KEY SECURE_AUTH_KEY LOGGED_IN_KEY NONCE_KEY AUTH_SALT SECURE_AUTH_SALT LOGGED_IN_SALT NONCE_SALT; do
         rand=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
         sed -i "s/put your unique phrase here/${rand}/" /var/www/html/wp-config.php
     done
+fi
+
+# Always update database configuration from environment variables on boot
+if [ -f /var/www/html/wp-config.php ]; then
+    # Update DB_NAME
+    sed -i "s/define( *['\"]DB_NAME['\"] *, *['\"].*['\"] *);/define( 'DB_NAME', '${WP_DB_NAME}' );/" /var/www/html/wp-config.php
+    
+    # Update DB_USER
+    sed -i "s/define( *['\"]DB_USER['\"] *, *['\"].*['\"] *);/define( 'DB_USER', '${WP_DB_USER}' );/" /var/www/html/wp-config.php
+    
+    # Update DB_PASSWORD
+    sed -i "s/define( *['\"]DB_PASSWORD['\"] *, *['\"].*['\"] *);/define( 'DB_PASSWORD', '${WP_DB_PASSWORD}' );/" /var/www/html/wp-config.php
+    
+    # Update DB_HOST
+    sed -i "s/define( *['\"]DB_HOST['\"] *, *['\"].*['\"] *);/define( 'DB_HOST', '${WP_DB_HOST}' );/" /var/www/html/wp-config.php
 
     # Change owner of the web folder to make sure proper permissions for nginx
     chown -R www-data /var/www/html
