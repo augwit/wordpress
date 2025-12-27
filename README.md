@@ -56,12 +56,10 @@ The container by itself does not provide automatic Wordpress upgrade feature. Yo
 
 ### Wordpress initial configuration
 
-On container's startup, after the eligible Wordpress installation, the container will check if the Wordpress's config file wp-config.php exists in the web folder.
+On container's startup, the container will automatically configure the Wordpress database connection using the provided environment variables.
 
-- If the wp-config.php does not exist(for a new installation this is true), the container will create one according to the sample config file, and inject a set of docker envrionment variables into it.
-
-- If the wp-config.php already exists, the container will leave it as is.
-
+- If the `wp-config.php` does not exist (for a new installation), the container will create one from the sample config file, generate secure authentication salts, and inject the database settings.
+- If the `wp-config.php` already exists, the container will automatically update the database connection settings (`DB_NAME`, `DB_USER`, `DB_PASSWORD`, `DB_HOST`) to match the current environment variables.
 
 The supported docker environment variables are:  
 
@@ -69,9 +67,7 @@ The supported docker environment variables are:
 WP_DB_HOST, WP_DB_USER, WP_DB_PASSWORD, WP_DB_NAME
 ```
 
-***Note that these environment variables will only apply to new wp-config.php file creation, it will not apply to an existing wp-config.php file.***
-
-This means once the Wordpress creation is completed, you cannot change the config through change environment variables. You will need to manually edit the wp-config.php file. For example, if you want to change to connect to other databases, you should manually edit these variables in the wp-config.php file.
+This allows you to change your database configuration by simply updating your Docker environment variables and restarting the container. Note that other custom settings in `wp-config.php` will remain untouched.
 
 ## Advanced Usages
 
