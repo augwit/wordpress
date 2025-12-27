@@ -181,6 +181,6 @@ The current default build args are:
 
 ```shell
 DEBIAN_VERSION=bookworm
-PHP_VERSION=8.3.26
+PHP_VERSION=8.3.29
 ```
 
