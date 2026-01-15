@@ -88,6 +88,7 @@ services:
             - WP_DB_NAME=wordpress
         volumes:
             - ./www:/var/www/html
+            - ./nginx/conf.d:/etc/nginx/conf.d
             - ./nginx/log:/var/log/nginx
     db:
         image: mysql/mysql-server:8.0.32
@@ -135,6 +136,7 @@ services:
             - WP_DB_NAME=wordpress
         volumes:
             - ./www:/var/www/html
+            - ./nginx/conf.d:/etc/nginx/conf.d
             - ./nginx/log:/var/log/nginx
     db:
         image: mysql/mysql-server:8.0.32
@@ -152,12 +154,14 @@ services:
 
 Note that by default we use ***Letsencrypt*** to automatically generate SSL certificates for the website, you need to make sure that your domain name is already resolved to the host server you run this container. If the DNS is not correc the certbot will fail the challenge phase, causing no certificate generated and the website will fallback to only serve on HTTP 80 port.
 
+Note that as letsencrypt does not support localhost so we always generate a self-signed certificate for the localhost.
+
 ***How to use your own certificates:***
 If you want to use your own certificate or if your environment is not friendly to the Letsencrypt, you can follow below steps:
 
-1. Set LETSENCRYPT_ENABLED to false
-2. Mount a volumn to /var/ssl
-3. Put your own cert files such as fullchain.pem and privkey.pem to this folder.
+1. Mount a volumn to /var/ssl
+2. Set LETSENCRYPT_ENABLED to false
+3. Put your own cert files to the ssl folder to overwrite the self-signed certificates.
    
 The website will only serve when the two cert files are properly placed when LETSENCRYPT_ENABLED=false.
 

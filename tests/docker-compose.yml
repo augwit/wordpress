@@ -1,19 +1,21 @@
 services:
     web:
-        image: augwit/wordpress:7.4.33
+        image: augwit/wordpress:8.3.29-fpm-bookworm
         restart: always
         ports:
             - 80:80
+            - 443:443
         environment:
             - DOMAIN_NAME=localhost
             - HTTPS_ENABLED=true
-            - LETSENCRYPT_ENABLED=true
+            - LETSENCRYPT_ENABLED=false
             - WP_DB_HOST=db
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
             - WP_DB_NAME=wordpress
         volumes:
             - ./www:/var/www/html
+            - ./nginx/conf.d:/etc/nginx/conf.d
             - ./nginx/log:/var/log/nginx
     db:
       image: mysql/mysql-server:8.0.32

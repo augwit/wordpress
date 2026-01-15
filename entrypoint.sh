@@ -1,26 +1,65 @@
 #!/bin/bash
 
-if [ ! -f /etc/nginx/conf.d/default.conf ]; then
-    cp /usr/src/nginx-defaults/default.conf /etc/nginx/conf.d/;
-    cp /usr/src/nginx-defaults/wordpress.conf.include /etc/nginx/conf.d/wordpress.conf.include
+deploy_self_signed_certificates() {
+    domain="$1"
 
-    # Update entrypoint to configure Nginx and configure SSL certificates
+    if [ -z "$domain" ]; then
+        echo "[ERROR] domain is empty" >&2
+        return 1
+    fi
+
+    mkdir -p /var/ssl
+
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+        -keyout /var/ssl/privkey.pem \
+        -out /var/ssl/fullchain.pem \
+        -subj "/CN=$domain" \
+        -addext "subjectAltName=DNS:$domain,IP:127.0.0.1"
+
+    cp -p /usr/src/nginx-defaults/default_ssl.conf /etc/nginx/conf.d/default.conf
+    sed -i "s/server_name localhost;/server_name $domain;/" /etc/nginx/conf.d/default.conf
+}
+
+if [ -f /etc/nginx/conf.d/default.conf ] && ! grep -q "wordpress.conf.include" /etc/nginx/conf.d/default.conf; then
+    # Custom config detected - warn but don't overwrite
+    echo "INFO: Custom Nginx config detected - not overwriting"
+    echo "To update to default configs, manually delete the custom configs under /etc/nginx/conf.d/, then restart the container"
+else
+    if [ ! -f /etc/nginx/conf.d/default.conf ]; then
+        echo "Setting up default WordPress Nginx configuration"
+    else
+        echo "Override existing WordPress Nginx configurations"
+    fi
+
+    cp -p /usr/src/nginx-defaults/default.conf /etc/nginx/conf.d/;
+    cp -p /usr/src/nginx-defaults/wordpress.conf.include /etc/nginx/conf.d/wordpress.conf.include
+    if [ ! -f /etc/nginx/conf.d/custom.conf.include ]; then
+        cp /usr/src/nginx-defaults/custom.conf.include /etc/nginx/conf.d/custom.conf.include
+    fi
+
+    # Update server_name in Nginx configuration
     sed -i "s/server_name localhost;/server_name $DOMAIN_NAME;/" /etc/nginx/conf.d/default.conf
 
     # If SSL is enabled and Certbot is not enabled, copy the default SSL configuration
-    if [ "$HTTPS_ENABLED" = "true" ] && [ "$LETSENCRYPT_ENABLED" = "false" ]; then 
-        cp /usr/src/nginx-defaults/default_ssl.conf /etc/nginx/conf.d/;
+    if [ "$HTTPS_ENABLED" = "true" ] && [ "$LETSENCRYPT_ENABLED" = "false" ]; then
+        # Generate self-signed certificates
+        deploy_self_signed_certificates $DOMAIN_NAME
     fi
 
     # If SSL is enabled and Certbot is enabled, run Certbot to obtain SSL certificates
     if [ "$HTTPS_ENABLED" = "true" ] && [ "$LETSENCRYPT_ENABLED" = "true" ]; then
+        if [ $DOMAIN_NAME = "localhost" ]; then
+            # Always use self-signed certificates for localhost
+            deploy_self_signed_certificates $DOMAIN_NAME
+        fi
+        # Try Certbot - handle failure appropriately
+        echo "Using Let's Encrypt for domain $DOMAIN_NAME"
         certbot --nginx -d $DOMAIN_NAME --non-interactive --agree-tos --register-unsafely-without-email -m admin@$DOMAIN_NAME
-        # cerrtbot started nginx but we need to stop it for now. Later we will start it in the foreground.
         service nginx stop
     fi
 fi
 
-# Download the latest wordpress
+# Download the latest wordpress if necessary
 if [ ! -f /var/www/html/index.php ]; then
     curl https://wordpress.org/latest.zip -o /var/www/wordpress_latest.zip
     unzip /var/www/wordpress_latest.zip -d /var/www/
