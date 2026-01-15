@@ -1,6 +1,6 @@
 services:
     web:
-        image: augwit/wordpress:8.3.29-fpm-bookworm
+        image: augwit/wordpress:8.4.16-fpm-bookworm
         restart: always
         ports:
             - 80:80
