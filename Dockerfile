@@ -151,6 +151,7 @@ RUN mkdir /usr/src/nginx-defaults
 COPY ./nginx/default.conf /usr/src/nginx-defaults/default.conf
 COPY ./nginx/default_ssl.conf /usr/src/nginx-defaults/default_ssl.conf
 COPY ./nginx/wordpress.conf.include /usr/src/nginx-defaults/wordpress.conf.include
+COPY ./nginx/custom.conf.include /usr/src/nginx-defaults/custom.conf.include
 RUN mkdir -p /etc/nginx/ssl
 COPY ./nginx/options-ssl-nginx.conf /etc/nginx/ssl/options-ssl-nginx.conf
 # Generate the Diffie-Hellman certificate
