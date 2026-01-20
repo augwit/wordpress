@@ -48,12 +48,6 @@
         fastcgi_pass localhost:9000;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         include fastcgi_params;
-
-        # Add proxy headers support
-        fastcgi_param HTTP_X_FORWARDED_PROTO $scheme;
-        fastcgi_param HTTP_X_FORWARDED_FOR $proxy_add_x_forwarded_for;
-        fastcgi_param HTTP_X_FORWARDED_HOST $host;
-        fastcgi_param HTTP_X_REAL_IP $remote_addr;
     }
 
     location ~* \.(js|css|png|jpg|jpeg|gif|ico)$ {
