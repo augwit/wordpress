@@ -165,6 +165,12 @@ RUN rm -f /etc/nginx/conf.d/default.conf
 EXPOSE 80
 EXPOSE 443
 
+# Add health check for database connectivity and HTTP status
+COPY healthcheck.sh /healthcheck.sh
+RUN chmod +x /healthcheck.sh
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD /healthcheck.sh
+
 COPY ./entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
