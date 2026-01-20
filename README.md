@@ -67,6 +67,16 @@ The supported docker environment variables are:
 WP_DB_HOST, WP_DB_USER, WP_DB_PASSWORD, WP_DB_NAME
 ```
 
+You can also inject custom PHP configuration code into `wp-config.php` using the `WORDPRESS_CONFIG_EXTRA` environment variable. This is useful for advanced settings or reverse proxy configurations.
+
+Example:
+```yaml
+environment:
+  WORDPRESS_CONFIG_EXTRA: |
+    define( 'WP_DEBUG', true );
+    define( 'WP_MEMORY_LIMIT', '256M' );
+```
+
 This allows you to change your database configuration by simply updating your Docker environment variables and restarting the container. Note that other custom settings in `wp-config.php` will remain untouched.
 
 ## Advanced Usages
@@ -86,6 +96,8 @@ services:
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
             - WP_DB_NAME=wordpress
+            # Optional: Add extra config
+            - WORDPRESS_CONFIG_EXTRA=define('WP_MEMORY_LIMIT', '512M');
         volumes:
             - ./www:/var/www/html
             - ./nginx/conf.d:/etc/nginx/conf.d
@@ -134,6 +146,8 @@ services:
             - WP_DB_USER=wordpress
             - WP_DB_PASSWORD=password
             - WP_DB_NAME=wordpress
+            # Use extra config to force HTTPS behind reverse proxies if needed (though now automatic!)
+            - WORDPRESS_CONFIG_EXTRA=define('WP_HOME','https://example.com'); define('WP_SITEURL','https://example.com');
         volumes:
             - ./www:/var/www/html
             - ./nginx/conf.d:/etc/nginx/conf.d
