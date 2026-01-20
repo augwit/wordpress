@@ -46,6 +46,11 @@ else
         deploy_self_signed_certificates $DOMAIN_NAME
     fi
 
+    if [ "$HTTPS_ENABLED" = "true" ]; then
+        # Ensure proper SSL handling for reverse proxy
+        sed -i "s/ssl_certificate \/var\/ssl\/fullchain.pem;/ssl_certificate \/var\/ssl\/fullchain.pem;\n    proxy_headers_hash_max_size 512;\n    proxy_headers_hash_bucket_size 128;/" /etc/nginx/conf.d/default.conf
+    fi
+
     # If SSL is enabled and Certbot is enabled, run Certbot to obtain SSL certificates
     if [ "$HTTPS_ENABLED" = "true" ] && [ "$LETSENCRYPT_ENABLED" = "true" ]; then
         if [ $DOMAIN_NAME = "localhost" ]; then
@@ -92,6 +97,35 @@ if [ -f /var/www/html/wp-config.php ]; then
     
     # Update DB_HOST
     sed -i "s/define( *['\"]DB_HOST['\"] *, *['\"].*['\"] *);/define( 'DB_HOST', '${WP_DB_HOST}' );/" /var/www/html/wp-config.php
+
+    # Add WORDPRESS_CONFIG_EXTRA to wp-config.php
+    if [ ! -z "$WORDPRESS_CONFIG_EXTRA" ]; then
+        echo "Adding WORDPRESS_CONFIG_EXTRA to wp-config.php"
+        # Check if WORDPRESS_CONFIG_EXTRA is already in wp-config.php to avoid duplication
+        if ! grep -q "WORDPRESS_CONFIG_EXTRA" /var/www/html/wp-config.php; then
+             # Use awk to insert the content before the "stop editing" line
+             awk -v content="$WORDPRESS_CONFIG_EXTRA" '
+             /That.s all, stop editing/ {
+                 print "// WORDPRESS_CONFIG_EXTRA"
+                 print content
+                 print ""
+             }
+             { print }
+             ' /var/www/html/wp-config.php > /var/www/html/wp-config.php.tmp && mv /var/www/html/wp-config.php.tmp /var/www/html/wp-config.php
+        fi
+    fi
+
+    # Add proxy headers support to wp-config.php
+    if ! grep -q "HTTP_X_FORWARDED_PROTO" /var/www/html/wp-config.php; then
+        echo "Adding proxy header support to wp-config.php"
+        cat <<EOF >> /var/www/html/wp-config.php
+
+// Handle Reverse Proxy (HTTPS)
+if (isset(\$_SERVER['HTTP_X_FORWARDED_PROTO']) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    \$_SERVER['HTTPS'] = 'on';
+}
+EOF
+    fi
 
     # Change owner of the web folder to make sure proper permissions for nginx
     chown -R www-data /var/www/html
